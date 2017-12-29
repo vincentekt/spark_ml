@@ -1,6 +1,6 @@
 package ml.rf
 
-import ml.common.args_parse
+import ml.common.{args_parse, feature_var}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.ml.feature.VectorAssembler
@@ -17,10 +17,6 @@ object validate {
     val sc = new SparkContext(new SparkConf())
     val sqlContext = new SQLContext(sc)
     val testData = sqlContext.read.parquet(app_args.get('ipDataPath).get.asInstanceOf[String])
-
-    val feature_var = Array("locale", "day_of_week", "hour_of_day", "agent_id", "entry_page", "traffic_type",
-      "session_duration", "countLength", "logLikelihood", "durPerPage", "logPosterior", "weekend", "am",
-      "peakHours", "evening", "sleepHours", "durCo", "cocounts", "avgCocounts")
 
     val assembler = new VectorAssembler().setInputCols(feature_var).setOutputCol("features")
 
