@@ -1,5 +1,6 @@
 package ml.lr
 
+import ml.common.args_parse
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.ml.feature.VectorAssembler
@@ -8,19 +9,20 @@ import org.apache.spark.ml.regression.LinearRegressionModel
 import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.sql.functions.{col, exp}
 
+import ml.common.{args_parse, feature_var}
+
 object validate {
   def main(args: Array[String]): Unit = {
+
+    val app_args = args_parse(args)
+
     val sc = new SparkContext(new SparkConf())
     val sqlContext = new SQLContext(sc)
-    val testData = sqlContext.read.parquet("tmp_vincent/trivago/testData")
-
-    val feature_var = Array("locale", "day_of_week", "hour_of_day", "agent_id", "entry_page", "traffic_type",
-      "session_duration", "countLength", "logLikelihood", "durPerPage", "logPosterior", "weekend", "am",
-      "peakHours", "evening", "sleepHours", "durCo", "cocounts", "avgCocounts")
+    val testData = sqlContext.read.parquet(app_args.get('ipDataPath).get.asInstanceOf[String])
 
     val assembler = new VectorAssembler().setInputCols(feature_var).setOutputCol("features")
 
-    val model = PipelineModel.load("tmp_vincent/trivago/model/lr_ml")
+    val model = PipelineModel.load(app_args.get('ipModelPath).get.asInstanceOf[String])
 
     val colNames = Seq("y", "features")
     val test_data_raw = assembler.transform(testData).select(colNames.head, colNames.tail: _*)

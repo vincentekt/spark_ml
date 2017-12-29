@@ -39,7 +39,7 @@ object predict {
     val predictions = model.transform(test_data_raw)
 
     val opColNames = Seq("mixid", "prediction")
-    predictions.take(5).foreach(println)
+
     val local_pred = predictions.withColumn("prediction", exp(col("prediction")))
       .select(opColNames.head, opColNames.tail: _*).collect()
 

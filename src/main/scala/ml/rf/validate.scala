@@ -16,7 +16,7 @@ object validate {
 
     val sc = new SparkContext(new SparkConf())
     val sqlContext = new SQLContext(sc)
-    val testData = sqlContext.read.parquet("tmp_vincent/trivago/testData")
+    val testData = sqlContext.read.parquet(app_args.get('ipDataPath).get.asInstanceOf[String])
 
     val feature_var = Array("locale", "day_of_week", "hour_of_day", "agent_id", "entry_page", "traffic_type",
       "session_duration", "countLength", "logLikelihood", "durPerPage", "logPosterior", "weekend", "am",
@@ -24,7 +24,7 @@ object validate {
 
     val assembler = new VectorAssembler().setInputCols(feature_var).setOutputCol("features")
 
-    val model = PipelineModel.load("tmp_vincent/trivago/model/rf_ml")
+    val model = PipelineModel.load(app_args.get('ipModelPath).get.asInstanceOf[String])
 
     val colNames = Seq("y", "features")
     val test_data_raw = assembler.transform(testData).select(colNames.head, colNames.tail: _*)
